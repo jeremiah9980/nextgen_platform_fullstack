@@ -8,7 +8,7 @@ cursor = conn.cursor()
 cursor.execute("CREATE TABLE IF NOT EXISTS ring_events (id INTEGER PRIMARY KEY, timestamp TEXT, kind TEXT, description TEXT, device TEXT)")
 conn.commit()
 
-ring = Ring(username=os.getenv("RING_USERNAME"), password=os.getenv("RING_PASSWORD"))
+ring = Ring(username=os.getenv("Jeremiahcargill@gmail.com"), password=os.getenv("KassKinz217799++!!"))
 devices = ring.devices()
 
 def log_events():
