@@ -24,7 +24,7 @@ router.post('/', async (req, res) => {
         res.redirect('/');
     } catch (error) {
         if (error.name === 'ValidationError') {
-            return res.status(400).send(error.message);
+            return res.status(400).send('Invalid task input.');
         }
         return res.status(500).send('Unable to add task.');
     }
@@ -38,7 +38,7 @@ router.post('/todo/destroy', async (req, res) => {
         res.redirect('/');
     } catch (error) {
         if (error.name === 'ValidationError') {
-            return res.status(400).send(error.message);
+            return res.status(400).send('Invalid task identifier.');
         }
         return res.status(500).send('Unable to delete task.');
     }

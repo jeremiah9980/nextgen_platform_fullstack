@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bodyParse = require('body-parser');
 const livereload = require('livereload');
 const connectLiveReload = require('connect-livereload');
+const { rateLimit } = require('express-rate-limit');
 const app = require('express')();
 const moment = require('moment');
 
@@ -23,6 +24,12 @@ app.use(connectLiveReload())
 
 app.use(bodyParse.urlencoded({ extended: false }));
 app.locals.moment = moment;
+app.use(rateLimit({
+    windowMs: 60 * 1000,
+    limit: 120,
+    standardHeaders: true,
+    legacyHeaders: false
+}));
 
 // Database connection
 const db = require('./config/keys').mongoProdURI;
