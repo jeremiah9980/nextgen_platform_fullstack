@@ -1,33 +1,47 @@
 const express = require('express');
 const Todo = require('./../models/Todo');
+const { validateObjectId, validateTask } = require('./../middleware/validation');
 
 const router = express.Router();
 
 // Home page route
 router.get('/', async (req, res) => {
-
-    const todos = await Todo.find()
-    res.render("todos", {
-        tasks: (Object.keys(todos).length > 0 ? todos : {})
-    });
+    try {
+        const todos = await Todo.find();
+        res.render("todos", {
+            tasks: (Object.keys(todos).length > 0 ? todos : {})
+        });
+    } catch (error) {
+        res.status(500).send('Unable to load tasks.');
+    }
 });
 
 // POST - Submit Task
-router.post('/', (req, res) => {
-    const newTask = new Todo({
-        task: req.body.task
-    });
-
-    newTask.save()
-    .then(task => res.redirect('/'))
-    .catch(err => console.log(err));
+router.post('/', async (req, res) => {
+    try {
+        const task = validateTask(req.body.task);
+        await Todo.create({ task });
+        res.redirect('/');
+    } catch (error) {
+        if (error.name === 'ValidationError') {
+            return res.status(400).send('Invalid task input.');
+        }
+        return res.status(500).send('Unable to add task.');
+    }
 });
 
 // POST - Destroy todo item
 router.post('/todo/destroy', async (req, res) => {
-    const taskKey = req.body._key;
-    const err = await Todo.findOneAndRemove({_id: taskKey})
-    res.redirect('/');
+    try {
+        const taskKey = validateObjectId(req.body._key);
+        await Todo.findByIdAndDelete(taskKey);
+        res.redirect('/');
+    } catch (error) {
+        if (error.name === 'ValidationError') {
+            return res.status(400).send('Invalid task identifier.');
+        }
+        return res.status(500).send('Unable to delete task.');
+    }
 });
 
 

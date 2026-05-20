@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bodyParse = require('body-parser');
 const livereload = require('livereload');
 const connectLiveReload = require('connect-livereload');
+const { rateLimit } = require('express-rate-limit');
 const app = require('express')();
 const moment = require('moment');
 
@@ -23,16 +24,27 @@ app.use(connectLiveReload())
 
 app.use(bodyParse.urlencoded({ extended: false }));
 app.locals.moment = moment;
+app.use(rateLimit({
+    windowMs: 60 * 1000,
+    limit: 120,
+    standardHeaders: true,
+    legacyHeaders: false
+}));
 
 // Database connection
 const db = require('./config/keys').mongoProdURI;
 mongoose
-    .connect(db, { useNewUrlParser: true })
+    .connect(db)
     .then(() => console.log(`Mongodb Connected`))
-    .catch(error => console.log(error));
+    .catch(error => console.error('MongoDB connection error:', error));
 
 
 app.use(FrontRouter);
+
+app.use((err, req, res, next) => {
+    console.error(err);
+    res.status(500).send('Internal server error.');
+});
 
 
 const PORT = process.env.PORT || 3000;

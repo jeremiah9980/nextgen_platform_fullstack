@@ -4,11 +4,13 @@ const Schema = mongoose.Schema;
 const TodoSchema = new Schema({
     task: {
         type: String,
-        required: true
+        required: true,
+        trim: true,
+        maxlength: 200
     },
     created_at: {
         type: Date,
-        default: Date.now()
+        default: Date.now
     }
 });
 
